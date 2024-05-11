@@ -143,7 +143,7 @@ NOTES:
  *   Rating: 1
  */
 int bitXor(int x, int y) {
-  return 2;
+  return ~((~(x & (~y))) & (~((~x) & y)));
 }
 /* 
  * tmin - return minimum two's complement integer 
@@ -152,9 +152,7 @@ int bitXor(int x, int y) {
  *   Rating: 1
  */
 int tmin(void) {
-
-  return 2;
-
+  return (1 << 31);
 }
 //2
 /*
@@ -165,7 +163,7 @@ int tmin(void) {
  *   Rating: 1
  */
 int isTmax(int x) {
-  return 2;
+  return !(x + x + 2) & !!(~x);
 }
 /* 
  * allOddBits - return 1 if all odd-numbered bits in word set to 1
@@ -176,7 +174,8 @@ int isTmax(int x) {
  *   Rating: 2
  */
 int allOddBits(int x) {
-  return 2;
+  int odd = (0xaa << 24) | (0xaa << 16) | (0xaa << 8) | 0xaa;
+  return !((x & odd) ^ odd);
 }
 /* 
  * negate - return -x 
@@ -186,7 +185,7 @@ int allOddBits(int x) {
  *   Rating: 2
  */
 int negate(int x) {
-  return 2;
+  return (~x) + 1;
 }
 //3
 /* 
@@ -199,7 +198,10 @@ int negate(int x) {
  *   Rating: 3
  */
 int isAsciiDigit(int x) {
-  return 2;
+  int p = (~15);
+  int x_ = x & p;
+  int _x = x ^ x_;
+  return (!((x_ >> 4) ^ 3)) & (!(_x & 8) | !(_x & 6));
 }
 /* 
  * conditional - same as x ? y : z 
@@ -209,7 +211,10 @@ int isAsciiDigit(int x) {
  *   Rating: 3
  */
 int conditional(int x, int y, int z) {
-  return 2;
+  int k = !!x;
+  int k1 = (~k) + 1;
+  int k2 = (~0) + k;
+  return (k1 & y) | (k2 & z);
 }
 /* 
  * isLessOrEqual - if x <= y  then return 1, else return 0 
@@ -219,7 +224,12 @@ int conditional(int x, int y, int z) {
  *   Rating: 3
  */
 int isLessOrEqual(int x, int y) {
-  return 2;
+  int lead_x = !!(x >> 31);
+  int lead_y = !!(y >> 31);
+  int big = (!lead_x & lead_y);
+  int small = (lead_x & !lead_y);
+  int comp = !((y + (~x) + 1) >> 31);
+  return !big & (small | comp);
 }
 //4
 /* 
@@ -231,7 +241,12 @@ int isLessOrEqual(int x, int y) {
  *   Rating: 4 
  */
 int logicalNeg(int x) {
-  return 2;
+  int x1 = x | (x >> 16);
+  int x2 = x1 | (x1 >> 8);
+  int x3 = x2 | (x2 >> 4);
+  int x4 = x3 | (x3 >> 2);
+  int x5 = x4 | (x4 >> 1);
+  return (~x5) & 1;
 }
 /* howManyBits - return the minimum number of bits required to represent x in
  *             two's complement
@@ -246,7 +261,17 @@ int logicalNeg(int x) {
  *  Rating: 4
  */
 int howManyBits(int x) {
-  return 0;
+  int x1 = (x >> 15);
+  int k1 = !x1 | !(~x1);
+  int x2 = (x >> (24 + (~(k1 << 4))));
+  int k2 = !x2 | !(~x2);
+  int x3 = (x >> (28 + (~((k1 << 4) + (k2 << 3)))));
+  int k3 = !x3 | !(~x3);
+  int x4 = (x >> (30 + (~((k1 << 4) + (k2 << 3) + (k3 << 2)))));
+  int k4 = !x4 | !(~x4);
+  int x5 = (x >> (31 + (~((k1 << 4) + (k2 << 3) + (k3 << 2) + (k4 << 1)))));
+  int k5 = !x5 | !(~x5);
+  return 33 + (~((k1 << 4) + (k2 << 3) + (k3 << 2) + (k4 << 1) + k5));
 }
 //float
 /* 
